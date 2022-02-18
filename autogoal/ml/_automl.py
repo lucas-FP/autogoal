@@ -135,7 +135,7 @@ class AutoML:
         if not y is None:
             y = np.asarray(y)
 
-        def fitness_fn(pipeline, timeout):
+        def fitness_fn(pipeline, timeout=None):
             return self.score_metric(
                 pipeline,
                 X,

@@ -48,7 +48,7 @@ def supervised_fitness_fn(score_metric_fn):
             mean_step_time = (time.time() - init_time) / max(step, 1)
             if step != 0 and mean_step_time > max_step_time:
                 raise PreemptiveStopException(
-                    f"Preemptive stop: mean validation step time of {mean_step_time} is higher than expected {mean_step_time}"
+                    f"Preemptive stop: mean validation step time of {mean_step_time} is higher than expected {max_step_time}"
                 )
             len_x = len(X) if isinstance(X, list) else X.shape[0]
             indices = np.arange(0, len_x)
