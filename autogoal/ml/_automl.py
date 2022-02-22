@@ -35,7 +35,7 @@ class AutoML:
         cross_validation_steps=3,
         registry=None,
         score_metric=None,
-        **search_kwargs
+        **search_kwargs,
     ):
         self.input = input
         self.output = output
@@ -135,7 +135,7 @@ class AutoML:
         if not y is None:
             y = np.asarray(y)
 
-        def fitness_fn(pipeline):
+        def fitness_fn(pipeline, timeout):
             return self.score_metric(
                 pipeline,
                 X,
@@ -143,6 +143,7 @@ class AutoML:
                 self.validation_split,
                 self.cross_validation_steps,
                 self.cross_validation,
+                timeout,
             )
 
         return fitness_fn

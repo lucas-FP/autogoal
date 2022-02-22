@@ -1,6 +1,8 @@
 import inspect
 import numpy as np
 import statistics
+import time
+from autogoal.utils import PreemptiveStopException
 from autogoal.ml.utils import LabelEncoder, check_number_of_labels
 
 METRICS = []
@@ -36,10 +38,18 @@ def supervised_fitness_fn(score_metric_fn):
         validation_split=0.3,
         cross_validation_steps=3,
         cross_validation="median",
-        **kwargs
+        timeout,
+        **kwargs,
     ):
         scores = []
-        for _ in range(cross_validation_steps):
+        init_time = time.time()
+        max_step_time = timeout / cross_validation_steps
+        for step in range(cross_validation_steps):
+            mean_step_time = (time.time() - init_time) / max(step, 1)
+            if step != 0 and mean_step_time > max_step_time:
+                raise PreemptiveStopException(
+                    f"Preemptive stop: mean validation step time of {mean_step_time} is higher than expected {mean_step_time}"
+                )
             len_x = len(X) if isinstance(X, list) else X.shape[0]
             indices = np.arange(0, len_x)
             np.random.shuffle(indices)

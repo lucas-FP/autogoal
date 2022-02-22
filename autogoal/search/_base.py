@@ -34,7 +34,7 @@ class SearchAlgorithm:
             raise ValueError("You must provide either `generator_fn` or `fitness_fn`")
 
         self._generator_fn = generator_fn
-        self._fitness_fn = fitness_fn or (lambda x: x)
+        self._fitness_fn = fitness_fn or (lambda x, **kwargs: x)
         self._pop_size = pop_size
         self._maximize = maximize
         self._errors = errors
@@ -105,7 +105,9 @@ class SearchAlgorithm:
 
                     try:
                         logger.sample_solution(solution)
-                        fn = self._fitness_fn(solution)
+                        fn = self._fitness_fn(
+                            solution, timeout=self._evaluation_timeout
+                        )
                     except Exception as e:
                         fn = -math.inf if self._maximize else math.inf
                         logger.error(e, solution)
