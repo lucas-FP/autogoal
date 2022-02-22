@@ -37,10 +37,10 @@ class SemanticTypeMeta(type):
             return cls._specialize(args)
 
     def __subclasscheck__(cls, subclass: type) -> bool:
-        if hasattr(subclass, "_conforms") and subclass._conforms(cls):
+        if super().__subclasscheck__(subclass):
             return True
 
-        return super().__subclasscheck__(subclass)
+        return hasattr(subclass, "_conforms") and subclass._conforms(cls)
 
     def __call__(self, *args, **kwds):
         raise TypeError("Cannot instantiate a semantic type")
@@ -276,7 +276,7 @@ class Seq(SemanticType):
         return SeqImp
 
 
-class UniformSeq(SemanticType):
+class UniformSeq(Seq):
     """Represents a sequence that has been through size normalization
 
     >>> isinstance(["hello", "world"], Seq[Word])
@@ -310,13 +310,13 @@ class UniformSeq(SemanticType):
     >>> UniformSeq
     UniformSeq
     >>> UniformSeq[Word]
-    UniformSeq[(Word,None)]
+    UniformSeq[Word,None]
 
     Subclasses are also serializable (which requires some non-trivial dark magic on the implementation side):
 
     >>> from pickle import dumps, loads
     >>> loads(dumps(UniformSeq[Word]))
-    UniformSeq[Word]
+    UniformSeq[Word,None]
    
     """
 
@@ -343,10 +343,10 @@ class UniformSeq(SemanticType):
 
             @classmethod
             def _conforms(cls, other):
-                if not issubclass(other, UniformSeq):
+                if not issubclass(other, Seq):
                     return False
 
-                if other == UniformSeq:
+                if other == UniformSeq or other == Seq:
                     return True
 
                 if hasattr(other, "__shape__") and cls.__shape__ != other.__shape__:
