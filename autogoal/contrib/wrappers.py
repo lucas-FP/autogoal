@@ -89,6 +89,30 @@ class BasePadder(AlgorithmBase):
 @nice_repr
 class VectorPadder(BasePadder):
     """
+    Pads and/or truncates a sequence of vectors, ensuring all have the same size.
+
+      ##### Examples
+
+    ```python
+    >>> import numpy as np
+    >>> x1 = np.asarray([1,2,3,4,5,6])
+    >>> x2 = np.asarray([2,3,4,5,6])
+    >>> x3 = np.asarray([3,4,5])
+    >>> VectorPadder("min").run([x1, x2, x3])
+    array([[1, 2, 3],
+           [2, 3, 4],
+           [3, 4, 5]])
+
+    >>> VectorPadder("max").run([x1, x2, x3])
+    array([[1, 2, 3, 4, 5, 6],
+           [2, 3, 4, 5, 6, 0],
+           [3, 4, 5, 0, 0, 0]])
+
+    >>> VectorPadder("mean").run([x1, x2, x3])
+    array([[1, 2, 3, 4, 5],
+           [2, 3, 4, 5, 6],
+           [3, 4, 5, 0, 0]])
+    ```
 
     """
 
@@ -102,7 +126,40 @@ class VectorPadder(BasePadder):
 @nice_repr
 class MatrixPadder(BasePadder):
     """
+    Pads and/or truncates a sequence of matrices, ensuring all have the same size.
 
+      ##### Examples
+
+    ```python
+    >>> import numpy as np
+    >>> x1 = np.asarray([[1,2],[3,4],[5,6]])
+    >>> x2 = np.asarray([[2,3],[4,5],[6,7],[8,9]])
+    >>> x3 = np.asarray([[3,4],[5,6]])
+    >>> MatrixPadder("min").run([x1, x2, x3])
+    array([[[1, 2],
+            [3, 4]],
+    <BLANKLINE>
+           [[2, 3],
+            [4, 5]],
+    <BLANKLINE>
+           [[3, 4],
+            [5, 6]]])
+
+    >>> MatrixPadder("max").run([x1, x2, x3])
+    array([[[1, 2],
+            [3, 4],
+            [5, 6],
+            [0, 0]],
+    <BLANKLINE>
+           [[2, 3],
+            [4, 5],
+            [6, 7],
+            [8, 9]],
+    <BLANKLINE>
+           [[3, 4],
+            [5, 6],
+            [0, 0],
+            [0, 0]]])
     """
 
     def __init__(self, method: CategoricalValue("min", "mean", "max")):
@@ -167,7 +224,7 @@ class TensorBuilder(BasePadder):
     ```
     """
 
-    def __init__(self, method: CategoricalValue("min")):
+    def __init__(self, method: CategoricalValue("min", "mean", "max")):
         super().__init__(method)
 
     def run(self, input: Seq[MatrixContinuousDense]) -> Tensor3:
